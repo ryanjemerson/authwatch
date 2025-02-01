@@ -49,4 +49,3 @@ Contributions and suggestions are always welcome. Feel free to open an issue or 
 ## License  
 
 MIT License – Free to use and modify.  
-```
