@@ -1,12 +1,12 @@
 # 🔒 LogSentinel: Windows Log Analyzer & IP Reputation Checker  
 
 ## 🚀 Overview  
-LogSentinel is a **personal project** built to automate **failed login investigations** by extracting authentication logs and checking **IP reputation scores** using AbuseIPDB.  
-I created this tool to help **security analysts and IT admins** quickly **identify suspicious logins** without manually digging through event logs.  
+LogSentinel is a personal project built to automate failed login investigations by extracting authentication logs and checking IP reputation scores using AbuseIPDB.  
+I created this tool to help security analysts and IT admins quickly identify suspicious logins without manually digging through event logs.  
 
 ## 💡 Why I Built This  
-As a **Security Grading Analyst**, I spend a lot of time reviewing authentication logs to detect unusual login patterns.  
-Manually analyzing logs is **slow**, and identifying **truly suspicious** logins requires **context**—such as whether an IP has a bad reputation.  
+As a Security Grading Analyst, I spend a lot of time reviewing authentication logs to detect unusual login patterns.  
+Manually analyzing logs is slow, and identifying truly suspicious logins requires context—such as whether an IP has a bad reputation.  
 
 So I built LogSentinel to:  
 ✅ **Automate log retrieval** from **Windows Event Logs** or a **CSV file** for offline analysis.  
@@ -60,8 +60,8 @@ So I built LogSentinel to:
 ---
 
 ## 🔥 Real-World Use Case  
-While working as a **Security Analyst**, I often had to manually go through **weeks of authentication logs** to detect unusual login activity.  
-One challenge was **distinguishing real threats** from **false positives** (e.g., traveling users triggering "unusual location" flags).  
+While working as a Security Analyst, I often had to manually go through weeks of authentication logs to detect unusual login activity.  
+One challenge was distinguishing real threats from false positives (e.g., traveling users triggering "unusual location" flags).  
 
 This script helps **automate** that process by:  
 ✅ Pulling failed logins **directly from Windows Event Logs**.  
