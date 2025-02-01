@@ -8,7 +8,7 @@ param (
     [string]$csvPath,  # Allow users to provide a CSV file
     [switch]$emailAlert,
     [string]$emailRecipient = "admin@company.com",
-    [string]$AbuseIPDB_API_Key = "9e8420481b2920462f98f9e3a84323eb66998ad38494cc26a34a6184554763bdf80f2eeb1736403c"
+    [string]$AbuseIPDB_API_Key = "YOUR_API_KEY_HERE"
 )
 
 # Default to AuthWatch_Fake.csv if no CSV is provided
