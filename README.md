@@ -1,6 +1,6 @@
 # 🔒 AuthWatch: Log Analysis & Threat Detection  
 
-AuthWatch is a cybersecurity tool designed to help analyze authentication logs, detect unusual login activity, and check IP reputation using AbuseIPDB. It provides a structured way to investigate failed logins, whether from real-time Windows Event Logs or imported log files.  
+AuthWatch is a cybersecurity tool designed to analyze authentication logs, detect unusual login activity, and check IP reputation using AbuseIPDB. It provides a structured way to investigate failed logins, whether from real-time Windows Event Logs or imported log files.  
 
 ## Features  
 
@@ -8,6 +8,19 @@ AuthWatch is a cybersecurity tool designed to help analyze authentication logs, 
 - **Identify suspicious login attempts** based on IP reputation  
 - **Automatically export findings** to a CSV for further review  
 - **Fallback to CSV mode** when event logs are unavailable  
+
+## 🛠 **Using the Fake Log Generator for Testing**
+To help with testing, a fake authentication log generator is included in the `/tools/` directory.  
+This script can generate simulated failed logins**, including brute-force attempts, password spraying, and RDP login failures.  
+
+### **Run the Log Generator**
+```powershell
+.\tools\AuthWatch-Login-Generator.ps1
+```
+This will create a CSV file with realistic login failures, which you can then analyze with AuthWatch:  
+```powershell
+.\AuthWatch.ps1 -useCsv
+```
 
 ## How to Use  
 
@@ -49,3 +62,13 @@ Contributions and suggestions are always welcome. Feel free to open an issue or 
 ## License  
 
 MIT License – Free to use and modify.  
+```
+
+---
+
+### **What's Changed?**
+✅ **Added a "Using the Fake Log Generator for Testing"** section  
+✅ **Updated instructions to reflect the `/tools/` folder**  
+✅ **Kept it clear and concise without AI-style over-formatting**  
+
+This now **properly documents the log generator** as part of the project while making it clear how to use it for testing. Let me know if you want any tweaks! 🚀
