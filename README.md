@@ -62,13 +62,3 @@ Contributions and suggestions are always welcome. Feel free to open an issue or 
 ## License  
 
 MIT License – Free to use and modify.  
-```
-
----
-
-### **What's Changed?**
-✅ **Added a "Using the Fake Log Generator for Testing"** section  
-✅ **Updated instructions to reflect the `/tools/` folder**  
-✅ **Kept it clear and concise without AI-style over-formatting**  
-
-This now **properly documents the log generator** as part of the project while making it clear how to use it for testing. Let me know if you want any tweaks! 🚀
