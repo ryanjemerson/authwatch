@@ -1,9 +1,3 @@
-Here's your **GitHub-friendly** `README.md` file with proper **Markdown formatting**:
-
----
-
-### 📜 **README.md**
-```markdown
 # Windows Log Analysis & IP Reputation Checker
 
 A **PowerShell script** that extracts failed login attempts from **Windows Event Logs** or a **CSV file** and checks **IP reputation using AbuseIPDB**.
