@@ -3,41 +3,82 @@
 # Description: Extracts failed login attempts from Windows Event Logs or a CSV file and checks IP reputation via AbuseIPDB.
 
 param (
-    [string]$outputPath = "$env:USERPROFILE\Documents\FailedLogins.csv",
+    [string]$outputPath = "$env:USERPROFILE\Documents\AuthWatch.csv",
     [switch]$useCsv,  # Option to use a CSV instead of Windows Event Log
-    [string]$csvPath = "$env:USERPROFILE\Documents\AuthWatch_FakeLogins.csv",
+    [string]$csvPath,  # Allow users to provide a CSV file
     [switch]$emailAlert,
-    [string]$emailRecipient = "admin@company.com"
+    [string]$emailRecipient = "admin@company.com",
+    [string]$AbuseIPDB_API_Key = "9e8420481b2920462f98f9e3a84323eb66998ad38494cc26a34a6184554763bdf80f2eeb1736403c"
 )
 
-# Enter your AbuseIPDB API key here
-$AbuseIPDB_API_Key = "9e8420481b2920462f98f9e3a84323eb66998ad38494cc26a34a6184554763bdf80f2eeb1736403c"
+# Default to AuthWatch_Fake.csv if no CSV is provided
+if ($useCsv -and -not $csvPath) {
+    $csvPath = "$env:USERPROFILE\Documents\AuthWatch_Fake.csv"
+}
+
 
 # Function to check IP reputation using AbuseIPDB
 function getIPReputation($ip) {
-    if ([string]::IsNullOrWhiteSpace($ip) -or $ip -eq "-" -or $ip -eq "N/A") {
-        return "N/A"
+    if ([string]::IsNullOrWhiteSpace($ip) -or $ip -eq "-" -or $ip -eq "N/A") { 
+        Write-Host "[INFO] Skipping empty or unknown IP: $ip" -ForegroundColor Cyan
+        return "N/A" 
     }
 
     # Validate IP format
-    if ($ip -notmatch "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") {
-        return "Invalid IP"
+    if ($ip -notmatch "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") { 
+        Write-Host "[WARNING] Invalid IP format: $ip" -ForegroundColor Yellow
+        return "Invalid IP" 
     }
 
+    # List of private IP address ranges (RFC 1918 & Reserved ranges)
+    $privateIPRanges = @("10.", "172.16.", "192.168.", "127.", "169.254.")
+
+    # Skip AbuseIPDB query if IP is internal
+    foreach ($range in $privateIPRanges) {
+        if ($ip.StartsWith($range)) {
+            Write-Host "[INFO] Skipping internal IP: $ip (Private Network)" -ForegroundColor Cyan
+            return "Internal IP"
+        }
+    }
+
+    Write-Host "[INFO] Querying AbuseIPDB for reputation of $ip..." -ForegroundColor Blue
+
+    # Query public IPs against AbuseIPDB
     $url = "https://api.abuseipdb.com/api/v2/check?ipAddress=$ip&maxAgeInDays=90"
-    $headers = @{
+    $headers = @{ 
         "Key" = $AbuseIPDB_API_Key
         "Accept" = "application/json"
     }
 
     try {
         $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
-        return $response.data.abuseConfidenceScore  # Score between 0-100
+        $score = $response.data.abuseConfidenceScore  # Store in variable
+
+        # Determine color based on risk level
+        if ($score -le 10) {
+            $color = "Green"  # Safe
+        } elseif ($score -le 40) {
+            $color = "Yellow"  # Low risk
+        } elseif ($score -le 70) {
+            $color = "Orange"  # Medium risk
+        } else {
+            $color = "Red"  # High risk
+        }
+
+        Write-Host ("[SUCCESS] Reputation score for {0}: {1}" -f $ip, $score) -ForegroundColor $color
+        return $score
     }
     catch {
-        Write-Host "Failed to retrieve IP reputation for $ip" -ForegroundColor Yellow
+        Write-Host "[ERROR] Failed to retrieve IP reputation for $ip" -ForegroundColor Red
         return "Error"
     }
+}
+
+
+
+if ($useCsv -and $csvPath -eq $outputPath) {
+    Write-Host "Error: CSV input and output paths must be different." -ForegroundColor Red
+    exit
 }
 
 # Function to send email alerts (Placeholder: Needs SMTP setup)
@@ -62,12 +103,11 @@ Write-Host "Start Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n" -Foreground
 $logData = @()
 
 if ($useCsv) {
-    # Load fake log data from CSV
     if (-not (Test-Path $csvPath)) {
-        Write-Host "Error: Test log file not found. Run the fake log generator script first." -ForegroundColor Red
+        Write-Host "Error: Specified CSV file not found: $csvPath" -ForegroundColor Red
         exit
     }
-    Write-Host "Loading fake log data from CSV..." -ForegroundColor Green
+    Write-Host "Loading log data from CSV: $csvPath" -ForegroundColor Green
     $logData = Import-Csv -Path $csvPath
 } else {
     # Retrieve logs from Windows Event Viewer
@@ -123,7 +163,7 @@ if ($useCsv -and $logData.Count -eq 0) {
         Write-Host "Error: No event logs and CSV file not found. Exiting..." -ForegroundColor Red
         exit
     }
-    Write-Host "Loading fake log data from CSV..." -ForegroundColor Green
+    Write-Host "Loading auth data from CSV..." -ForegroundColor Green
     $logData = Import-Csv -Path $csvPath
 }
 
@@ -153,6 +193,8 @@ foreach ($entry in $logData) {
 }
 
 Write-Host "Complete" -ForegroundColor Green
+
+
 
 # Export results if we have data
 if ($processedLogs.Count -gt 0) {
