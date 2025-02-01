@@ -3,12 +3,12 @@
 
 param (
     [int]$logCount = 100, # Total number of logs to generate
-    [string]$outputPath = "$env:USERPROFILE\Documents\AuthWatch_FakeLogins.csv"
+    [string]$outputPath = "$env:USERPROFILE\Documents\AuthWatch_Fake.csv"
 )
 
 # Sample usernames, IPs, and failure reasons
-$users = @("admin", "testuser", "jsmith", "backup", "security", "root", "sysadmin", "serviceacct")
-$attackIPs = @("185.199.110.153", "45.33.32.156", "203.0.113.45", "8.8.8.8") # Known malicious IPs
+$users = @("admin", "testuser", "jsmith", "backup", "security", "root", "sysadmin", "sysacct")
+$attackIPs = @("14.103.133.101", "164.77.216.194", "185.42.12.240", "36.93.237.218", "103.55.191.76", "152.42.214.250", "218.92.0.219") # Known malicious IPs
 $failureReasons = @("Invalid credentials", "Account locked out", "Account disabled", "Expired password", "Unknown failure")
 
 # Logon Types (Windows Event Log)
@@ -47,12 +47,13 @@ for ($i = 1; $i -le ($logCount - $bruteForceAttempts - $passwordSprayAttempts - 
     }
 }
 
-# Simulate Brute Force Attack (Repeated failed logins from one IP)
+# Simulate Brute Force Attack (Repeated failed logins from one attacker IP)
+$bruteForceIP = $attackIPs | Get-Random
 for ($i = 1; $i -le $bruteForceAttempts; $i++) {
     $fakeLogs += [PSCustomObject]@{
         TimeGenerated = (Get-Date).AddMinutes(-($i * 2))
         UserName = "admin"
-        SourceIP = "185.199.110.153"
+        SourceIP = $bruteForceIP
         LogonType = "RemoteInteractive"
         FailureReason = "Invalid credentials"
         ProcessName = "WinLogon.exe"
@@ -61,12 +62,13 @@ for ($i = 1; $i -le $bruteForceAttempts; $i++) {
     }
 }
 
-# Simulate Password Spraying (Different usernames from one IP)
+# Simulate Password Spraying (Different usernames from one attacker IP)
+$passwordSprayIP = $attackIPs | Get-Random
 for ($i = 1; $i -le $passwordSprayAttempts; $i++) {
     $fakeLogs += [PSCustomObject]@{
         TimeGenerated = (Get-Date).AddMinutes(-($i * 3))
         UserName = $users | Get-Random
-        SourceIP = "45.33.32.156"
+        SourceIP = $passwordSprayIP
         LogonType = "Network"
         FailureReason = "Invalid credentials"
         ProcessName = "SMBAuth.exe"
@@ -75,12 +77,13 @@ for ($i = 1; $i -le $passwordSprayAttempts; $i++) {
     }
 }
 
-# Simulate RDP Attacks (Multiple failed RDP logins)
+# Simulate RDP Attacks (Multiple failed RDP logins from various attacker IPs)
 for ($i = 1; $i -le $rdpAttackAttempts; $i++) {
+    $rdpIP = $attackIPs | Get-Random  # Each RDP attempt may use a different attacker IP
     $fakeLogs += [PSCustomObject]@{
         TimeGenerated = (Get-Date).AddMinutes(-($i * 6))
         UserName = "admin"
-        SourceIP = "203.0.113.45"
+        SourceIP = $rdpIP
         LogonType = "RemoteInteractive"
         FailureReason = "Invalid credentials"
         ProcessName = "mstsc.exe"
