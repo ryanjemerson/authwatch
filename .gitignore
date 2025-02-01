@@ -1,0 +1,8 @@
+# Ignore system & personal files
+*.log
+*.tmp
+*.db
+.DS_Store
+node_modules/
+.vscode/
+__pycache__/
